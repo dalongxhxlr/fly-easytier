@@ -9,6 +9,11 @@ primary_region = "sin"
   cpus = 1
   memory_mb = 256
 
+# 禁止高可用，只运行 1 台，最省钱
+[deploy]
+  strategy = "rolling"
+  max_unavailable = 1
+
 [[services]]
   internal_port = 11010
   protocol = "tcp"

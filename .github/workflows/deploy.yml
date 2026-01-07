@@ -15,15 +15,14 @@ jobs:
       - uses: superfly/flyctl-actions/setup-flyctl@master
 
       - name: Deploy to Fly.io
-        run: flyctl deploy --remote-only
-        env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-
-      - name: Set Secrets in Fly
         run: |
+          # 1. 部署前先设置 Secrets，确保机器启动时能读到
           flyctl secrets set \
             ET_NETWORK_NAME="${{ secrets.ET_NETWORK_NAME }}" \
             ET_NETWORK_SECRET="${{ secrets.ET_NETWORK_SECRET }}" \
-            ET_PEERS="${{ secrets.ET_PEERS }}"
+            ET_PEERS="${{ secrets.ET_PEERS }}" --app fly-easytier-ipv4
+          
+          # 2. 执行部署，限制只运行 1 台机器以节省资源
+          flyctl deploy --remote-only --ha=false
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
