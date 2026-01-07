@@ -1,0 +1,17 @@
+app = "fly-easytier-ipv4"
+primary_region = "hkg"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[vm]
+  cpu_kind = "shared"
+  cpus = 1
+  memory_mb = 256
+
+[[services]]
+  internal_port = 11010
+  protocol = "tcp"
+  auto_stop_machines = false
+  auto_start_machines = true
+  min_machines_running = 1
