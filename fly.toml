@@ -1,5 +1,5 @@
 app = "fly-easytier-ipv4"
-primary_region = "hkg"
+primary_region = "sin"
 
 [build]
   dockerfile = "Dockerfile"
