@@ -2,15 +2,4 @@ app = "fly-easytier-ipv4"
 primary_region = "sin"
 
 [build]
-  dockerfile = "Dockerfile"
-
-[vm]
-  cpu_kind = "shared"
-  cpus = 1
-  memory_mb = 256
-
-[deploy]
-  strategy = "rolling"
-  max_unavailable = 1
-
-# 此时不需要定义对外暴露的 services 端口
+  image = "easytier/easytier:latest" # 直接指向镜像，不走本地构建
