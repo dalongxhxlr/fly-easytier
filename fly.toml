@@ -1,5 +1,5 @@
 app = "fly-easytier-ipv4"
-primary_region = "sin"
+primary_region = "nrt"
 
 [build]
   image = "ginuerzh/gost"
