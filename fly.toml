@@ -2,13 +2,12 @@ app = "fly-easytier-ipv4"
 primary_region = "sin"
 
 [build]
-  # 使用官方维护的较新镜像
   image = "ginuerzh/gost"
 
 [processes]
-  # 增加了 ?mplex=true 开启多路复用支持
-  # 这能减少 TCP 握手次数，对加载视频封面和起播有明显加速作用
-  app = "-L socks5://:8080?mplex=true"
+  # 移除 mplex，改回最稳的标准 SOCKS5
+  # 不需要用户名密码，安全由 fly 隧道保证
+  app = "-L socks5://:8080"
 
 [[services]]
   protocol = "tcp"
@@ -17,11 +16,10 @@ primary_region = "sin"
   [[services.ports]]
     port = 8080
 
-# 如果你需要更好的 UDP 支持（用于视频流 QUIC 协议），
-# 可以取消下面段落的注释，让 Fly 转发 UDP 流量
-# [[services]]
-#   protocol = "udp"
-#   internal_port = 8080
-#   processes = ["app"]
-#   [[services.ports]]
-#     port = 8080
+# 强制限制实例数量
+[deploy]
+  strategy = "immediate"
+  max_unavailable = 1
+
+[env]
+  GOST_LOGGER_LEVEL = "info"
