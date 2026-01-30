@@ -12,4 +12,5 @@ COPY --from=cloudflared /usr/local/bin/cloudflared /usr/local/bin/cloudflared
 # 2. cloudflared 在前台运行 (exec)
 # 增加一个路径 /fly-tunnel
 # 关键：trojan+ws 模式，且不设置密码以排除认证干扰
-ENTRYPOINT ["/bin/sh", "-c", "/bin/gost -L trojan+ws://:8080?path=/fly-tunnel & exec /usr/local/bin/cloudflared tunnel --no-autoupdate run --token ${TUNNEL_TOKEN}"]
+# 显式使用 transport=ws 参数，不设密码
+ENTRYPOINT ["/bin/sh", "-c", "/bin/gost -L trojan://@:8080?transport=ws&path=/fly-tunnel & exec /usr/local/bin/cloudflared tunnel --no-autoupdate run --token ${TUNNEL_TOKEN}"]
