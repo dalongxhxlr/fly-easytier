@@ -11,4 +11,5 @@ COPY --from=cloudflared /usr/local/bin/cloudflared /usr/local/bin/cloudflared
 # 1. gost 在后台运行 (&)
 # 2. cloudflared 在前台运行 (exec)
 # 修改后的 ENTRYPOINT
-ENTRYPOINT ["/bin/sh", "-c", "/bin/gost -L mwss://:8080 & exec /usr/local/bin/cloudflared tunnel --no-autoupdate run --token ${TUNNEL_TOKEN}"]
+# 将 mwss 改为 ws
+ENTRYPOINT ["/bin/sh", "-c", "/bin/gost -L ws://:8080 & exec /usr/local/bin/cloudflared tunnel --no-autoupdate run --token ${TUNNEL_TOKEN}"]
