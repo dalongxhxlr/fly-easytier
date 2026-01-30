@@ -13,4 +13,5 @@ RUN curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/c
 COPY gost.yaml /etc/gost.yaml
 
 # 关键：清除可能导致回环的环境变量，并指定配置文件启动
-ENTRYPOINT ["/bin/sh", "-c", "unset http_proxy https_proxy HTTP_PROXY HTTPS_PROXY && /bin/gost -C /etc/gost.yaml & exec /usr/local/bin/cloudflared tunnel --no-autoupdate run --token ${TUNNEL_TOKEN}"]
+# 显式指定监听 0.0.0.0 避免 [::1] 无法识别的问题
+ENTRYPOINT ["/bin/sh", "-c", "unset http_proxy https_proxy HTTP_PROXY HTTPS_PROXY && /bin/gost -L trojan://@0.0.0.0:8080?transport=ws&path=/fly-tunnel & sleep 2 && exec /usr/local/bin/cloudflared tunnel --no-autoupdate run --token ${TUNNEL_TOKEN}"]
