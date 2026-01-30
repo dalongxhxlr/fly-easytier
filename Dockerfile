@@ -7,5 +7,8 @@ RUN apk add --no-cache curl
 RUN curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -o /usr/local/bin/cloudflared && \
     chmod +x /usr/local/bin/cloudflared
 
-# 核心改变：不仅 unset，还要给 gost 传递一个完全空的代理设置
-ENTRYPOINT ["/bin/sh", "-c", "env -i PATH=$PATH TUNNEL_TOKEN=$TUNNEL_TOKEN /bin/gost -L trojan://@:8080?transport=ws&path=/fly-tunnel & sleep 5 && /usr/local/bin/cloudflared tunnel --no-autoupdate run --token ${TUNNEL_TOKEN}"]
+# 1. 拷贝配置文件
+COPY gost.yaml /etc/gost.yaml
+
+# 2. 启动命令：彻底抛弃命令行参数，只读配置文件
+ENTRYPOINT ["/bin/sh", "-c", "unset http_proxy https_proxy HTTP_PROXY HTTPS_PROXY && /bin/gost -C /etc/gost.yaml & sleep 5 && exec /usr/local/bin/cloudflared tunnel --no-autoupdate run --token ${TUNNEL_TOKEN}"]
