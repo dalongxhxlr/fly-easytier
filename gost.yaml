@@ -1,6 +1,6 @@
 services:
 - name: service-0
-  addr: ":8080"  # 确保带引号，监听所有网卡
+  addr: :8080
   handler:
     type: trojan
     metadata:
