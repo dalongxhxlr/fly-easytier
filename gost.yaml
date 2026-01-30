@@ -1,0 +1,9 @@
+services:
+- name: service-0
+  addr: :8080
+  handler:
+    type: trojan
+    metadata:
+      path: /fly-tunnel
+  listener:
+    type: ws
