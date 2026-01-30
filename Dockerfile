@@ -13,4 +13,5 @@ COPY --from=cloudflared /usr/local/bin/cloudflared /usr/local/bin/cloudflared
 # 修改后的 ENTRYPOINT
 # 将 mwss 改为 ws
 # 给 ws 增加一个路径 /fly-tunnel
-ENTRYPOINT ["/bin/sh", "-c", "/bin/gost -L ws://:8080?path=/fly-tunnel & exec /usr/local/bin/cloudflared tunnel --no-autoupdate run --token ${TUNNEL_TOKEN}"]
+# 设置用户名为 fly，密码为 tunnel123 (你可以自行修改)
+ENTRYPOINT ["/bin/sh", "-c", "/bin/gost -L fly:tunnel123@ws://:8080?path=/fly-tunnel & exec /usr/local/bin/cloudflared tunnel --no-autoupdate run --token ${TUNNEL_TOKEN}"]
