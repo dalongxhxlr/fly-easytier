@@ -2,19 +2,19 @@ app = "fly-easytier-ipv4"
 primary_region = "nrt"
 
 [build]
-  image = "ginuerzh/gost"
+  # 这里留空或删除 image 行，Fly 会自动寻找当前目录的 Dockerfile，原内容image = "ginuerzh/gost"
 
-[processes]
+# [processes]
   # 移除 mplex，改回最稳的标准 SOCKS5
   # 不需要用户名密码，安全由 fly 隧道保证
-  app = "-L socks5://:8080"
+#   app = "-L socks5://:8080"
 
-[[services]]
-  protocol = "tcp"
-  internal_port = 8080
-  processes = ["app"]
-  [[services.ports]]
-    port = 8080
+# [[services]]
+#   protocol = "tcp"
+#   internal_port = 8080
+#   processes = ["app"]
+#   [[services.ports]]
+#     port = 8080
 
 # 强制限制实例数量
 [deploy]
