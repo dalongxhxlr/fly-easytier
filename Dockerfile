@@ -10,4 +10,5 @@ COPY --from=cloudflared /usr/local/bin/cloudflared /usr/local/bin/cloudflared
 # 使用 sh -c 直接在一行启动两个进程
 # 1. gost 在后台运行 (&)
 # 2. cloudflared 在前台运行 (exec)
-ENTRYPOINT ["/bin/sh", "-c", "/bin/gost -L socks5://:8080 & exec /usr/local/bin/cloudflared tunnel --no-autoupdate run --token ${TUNNEL_TOKEN}"]
+# 修改后的 ENTRYPOINT
+ENTRYPOINT ["/bin/sh", "-c", "/bin/gost -L mwss://:8080 & exec /usr/local/bin/cloudflared tunnel --no-autoupdate run --token ${TUNNEL_TOKEN}"]
