@@ -5,7 +5,7 @@
         "protocol": "trojan",
         "settings": {
             "clients": [
-                { "password": "password123" }
+                { "password": "password" }
             ]
         },
         "streamSettings": {
