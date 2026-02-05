@@ -8,4 +8,4 @@ primary_region = "nrt"
   strategy = "immediate"
 
 [env]
-  GOST_LOGGER_LEVEL = "info"
+  # 清理了旧的 Gost 变量，保持纯净
