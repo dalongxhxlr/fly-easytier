@@ -1,4 +1,4 @@
-# 1. 部署新配置
+## 1. 部署新配置
 fly deploy --strategy immediate --no-cache
 
 # 2. 强制将实例数量缩减为 1（这一步非常重要，防止后台脚本选错机器）
