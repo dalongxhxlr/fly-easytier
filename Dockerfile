@@ -11,4 +11,11 @@ RUN apk add --no-cache curl && \
 COPY config.json /etc/config.json
 
 # 启动脚本：彻底清除环境变量，强制 Xray 先动
-ENTRYPOINT ["/bin/sh", "-c", "unset http_proxy https_proxy HTTP_PROXY HTTPS_PROXY && xray -c /etc/config.json & sleep 3 && exec /usr/local/bin/cloudflared tunnel --no-autoupdate run --token ${TUNNEL_TOKEN}"]
+#ENTRYPOINT ["/bin/sh", "-c", "unset http_proxy https_proxy HTTP_PROXY HTTPS_PROXY && xray -c /#etc/config.json & sleep 3 && exec /usr/local/bin/cloudflared tunnel --no-autoupdate run --token #${TUNNEL_TOKEN}"]
+
+ENTRYPOINT ["/bin/sh", "-c", " \
+  (sleep 2700 && kill 1) & \
+  xray -c /etc/config.json & \
+  sleep 3 && \
+  exec cloudflared tunnel --no-autoupdate run --token ${TUNNEL_TOKEN} \
+"]
