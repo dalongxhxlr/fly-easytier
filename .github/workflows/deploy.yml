@@ -7,7 +7,6 @@ on:
 
 jobs:
   deploy:
-    name: Deploy app
     runs-on: ubuntu-latest
 
     steps:
@@ -19,18 +18,9 @@ jobs:
         run: |
           FILE="platform_limits.json"
 
+          # 如果文件不存在，创建默认文件
           if [ ! -f "$FILE" ]; then
-            echo "platform_limits.json not found, creating default..."
-            cat > "$FILE" << 'EOF'
-{
-  "flyio": {
-    "monthly_limit_minutes": 900,
-    "usage_minutes": 0,
-    "year": 2026,
-    "month": 3
-  }
-}
-EOF
+            echo '{"flyio":{"monthly_limit_minutes":900,"usage_minutes":0,"year":2026,"month":3}}' > "$FILE"
           fi
 
           YEAR_NOW=$(date +%Y)
@@ -41,12 +31,14 @@ EOF
           YEAR=$(jq '.flyio.year' "$FILE")
           MONTH=$(jq '.flyio.month' "$FILE")
 
+          # 跨月自动重置
           if [ "$YEAR_NOW" -ne "$YEAR" ] || [ "$MONTH_NOW" -ne "$MONTH" ]; then
             jq ".flyio.usage_minutes = 0 | .flyio.year = $YEAR_NOW | .flyio.month = $MONTH_NOW" "$FILE" > tmp.json
             mv tmp.json "$FILE"
             USAGE=0
           fi
 
+          # 判断是否超额
           if [ "$USAGE" -ge "$LIMIT" ]; then
             echo "skip_deploy=true" >> $GITHUB_OUTPUT
           else
