@@ -45,10 +45,13 @@ jobs:
             echo "skip_deploy=false" >> $GITHUB_OUTPUT
           fi
 
-      # 2. 超额则跳过部署
+      # 2. 超额则跳过部署（并标记为成功）
       - name: Stop if limit reached
         if: steps.check_limit.outputs.skip_deploy == 'true'
-        run: echo "Monthly limit reached, skipping deployment."
+        run: |
+          echo "Monthly limit reached, skipping deployment."
+          exit 0
+        continue-on-error: true
 
       # 3. 安装 flyctl
       - uses: superfly/flyctl-actions/setup-flyctl@master
