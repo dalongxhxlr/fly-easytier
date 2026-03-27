@@ -1,32 +1,17 @@
 {
-    "log": {
-        "loglevel": "info"
-    },
-    "inbounds": [
-        {
-            "port": 8080,
-            "protocol": "trojan",
-            "settings": {
-                "clients": [
-                    {
-                        "password": "password"
-                    }
-                ]
-            },
-            "streamSettings": {
-                "network": "ws",
-                "wsSettings": {
-                    "path": "/fly-tunnel"
-                }
-            }
+    "log": { "loglevel": "info" },
+    "inbounds": [{
+        "port": 8080,
+        "protocol": "trojan",
+        "settings": {
+            "clients": [
+                { "password": "password" }
+            ]
+        },
+        "streamSettings": {
+            "network": "ws",
+            "wsSettings": { "path": "/fly-tunnel" }
         }
-    ],
-    "outbounds": [
-        {
-            "protocol": "freedom",
-            "settings": {
-                "domainStrategy": "UseIPv6"
-            }
-        }
-    ]
+    }],
+    "outbounds": [{ "protocol": "freedom" }]
 }
