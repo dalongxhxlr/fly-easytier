@@ -10,6 +10,7 @@ primary_region = "nrt"
 [env]
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   # 清理了旧的 Gost 变量，保持纯净
 
 [[services]]
@@ -23,6 +24,9 @@ min_machines_running = 0
 [[services.ports]]
 port = 8080
 handlers = []
+=======
+  GOST_LOGGER_LEVEL = "info"
+>>>>>>> parent of 74be939 (pref)
 =======
   GOST_LOGGER_LEVEL = "info"
 >>>>>>> parent of 74be939 (pref)
