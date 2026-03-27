@@ -19,7 +19,6 @@ jobs:
         run: |
           FILE="platform_limits.json"
 
-          # 如果文件不存在，创建默认文件
           if [ ! -f "$FILE" ]; then
             echo "platform_limits.json not found, creating default..."
             cat > "$FILE" << 'EOF'
@@ -42,34 +41,22 @@ EOF
           YEAR=$(jq '.flyio.year' "$FILE")
           MONTH=$(jq '.flyio.month' "$FILE")
 
-          echo "Current limit: $LIMIT minutes"
-          echo "Current usage: $USAGE minutes"
-          echo "Record year/month: $YEAR/$MONTH"
-          echo "Now year/month: $YEAR_NOW/$MONTH_NOW"
-
-          # 跨月自动重置
           if [ "$YEAR_NOW" -ne "$YEAR" ] || [ "$MONTH_NOW" -ne "$MONTH" ]; then
-            echo "New month detected, resetting usage..."
             jq ".flyio.usage_minutes = 0 | .flyio.year = $YEAR_NOW | .flyio.month = $MONTH_NOW" "$FILE" > tmp.json
             mv tmp.json "$FILE"
             USAGE=0
           fi
 
-          # 判断是否超额
           if [ "$USAGE" -ge "$LIMIT" ]; then
-            echo "Fly.io monthly limit reached: $USAGE / $LIMIT minutes"
             echo "skip_deploy=true" >> $GITHUB_OUTPUT
           else
-            echo "Fly.io monthly usage OK: $USAGE / $LIMIT minutes"
             echo "skip_deploy=false" >> $GITHUB_OUTPUT
           fi
 
       # 2. 超额则跳过部署
       - name: Stop if limit reached
         if: steps.check_limit.outputs.skip_deploy == 'true'
-        run: |
-          echo "Monthly limit reached, skipping deployment."
-          exit 0
+        run: echo "Monthly limit reached, skipping deployment."
 
       # 3. 安装 flyctl
       - uses: superfly/flyctl-actions/setup-flyctl@master
@@ -93,22 +80,13 @@ EOF
         if: steps.check_limit.outputs.skip_deploy == 'false'
         run: |
           FILE="platform_limits.json"
-          EXTRA=45  # 每次部署预计运行 45 分钟
+          EXTRA=45
 
           YEAR_NOW=$(date +%Y)
           MONTH_NOW=$(date +%-m)
 
-          LIMIT=$(jq '.flyio.monthly_limit_minutes' "$FILE")
           USAGE=$(jq '.flyio.usage_minutes' "$FILE")
-          YEAR=$(jq '.flyio.year' "$FILE")
-          MONTH=$(jq '.flyio.month' "$FILE")
-
-          if [ "$YEAR_NOW" -ne "$YEAR" ] || [ "$MONTH_NOW" -ne "$MONTH" ]; then
-            USAGE=0
-          fi
-
           NEW_USAGE=$((USAGE + EXTRA))
-          echo "Updating usage: $USAGE + $EXTRA = $NEW_USAGE"
 
           jq ".flyio.usage_minutes = $NEW_USAGE | .flyio.year = $YEAR_NOW | .flyio.month = $MONTH_NOW" "$FILE" > tmp.json
           mv tmp.json "$FILE"
@@ -120,6 +98,6 @@ EOF
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add platform_limits.json
-          git commit -m "Update Fly.io usage" || echo "No changes to commit"
-          git push || echo "No changes to push"
+          git commit -m "Update Fly.io usage" || true
+          git push || true
 
