@@ -23,14 +23,14 @@ jobs:
           if [ ! -f "$FILE" ]; then
             echo "platform_limits.json not found, creating default..."
             cat > "$FILE" << 'EOF'
-          {
-            "flyio": {
-              "monthly_limit_minutes": 900,
-              "usage_minutes": 0,
-              "year": 2026,
-              "month": 3
-            }
-          }
+{
+  "flyio": {
+    "monthly_limit_minutes": 900,
+    "usage_minutes": 0,
+    "year": 2026,
+    "month": 3
+  }
+}
 EOF
           fi
 
@@ -79,13 +79,11 @@ EOF
       - name: Deploy to Fly.io
         if: steps.check_limit.outputs.skip_deploy == 'false'
         run: |
-          # 设置 Secrets
           flyctl secrets set \
             ET_NETWORK_NAME="${{ secrets.ET_NETWORK_NAME }}" \
             ET_NETWORK_SECRET="${{ secrets.ET_NETWORK_SECRET }}" \
             ET_PEERS="${{ secrets.ET_PEERS }}" --app fly-easytier-ipv4
 
-          # 执行部署
           flyctl deploy --remote-only --ha=false
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
