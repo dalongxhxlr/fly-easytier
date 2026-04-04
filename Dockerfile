@@ -20,7 +20,7 @@ COPY config.json /etc/config.json
 
 # 自动停机脚本 + 启动 Xray + 启动 Cloudflared
 ENTRYPOINT ["/bin/sh", "-c", " \
-  (sleep 2700 && kill 1) & \
+  (sleep 7200 && kill 1) & \
   xray -c /etc/config.json & \
   sleep 3 && \
   exec cloudflared tunnel --no-autoupdate run --token ${TUNNEL_TOKEN} \
