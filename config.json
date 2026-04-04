@@ -9,7 +9,7 @@
             ]
         },
         "streamSettings": {
-            "network": "ws",
+            "network": "tcp",
             "wsSettings": { "path": "/fly-tunnel" }
         }
     }],
