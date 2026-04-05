@@ -18,10 +18,8 @@ RUN curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/c
 # 拷贝 Xray 配置
 COPY config.json /etc/config.json
 
-# 自动停机脚本 + 启动 Xray + 启动 Cloudflared
+# 启动 Xray + 启动 Cloudflared
 ENTRYPOINT ["/bin/sh", "-c", " \
-  (sleep 7200 && kill 1) & \
   xray -c /etc/config.json & \
-  sleep 3 && \
   exec cloudflared tunnel --no-autoupdate run --token ${TUNNEL_TOKEN} \
 "]
