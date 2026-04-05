@@ -1,17 +1,33 @@
 {
-    "log": { "loglevel": "info" },
-    "inbounds": [{
-        "port": 8080,
-        "protocol": "trojan",
-        "settings": {
-            "clients": [
-                { "password": "password" }
-            ]
-        },
-        "streamSettings": {
-            "network": "ws",
-            "wsSettings": { "path": "/fly-tunnel" }
-        }
-    }],
-    "outbounds": [{ "protocol": "freedom" }]
+  "log": { "loglevel": "info" },
+
+  "inbounds": [
+    {
+      "port": 8080,
+      "protocol": "trojan",
+      "settings": {
+        "clients": [
+          { "password": "password" }
+        ]
+      },
+      "streamSettings": {
+        "network": "ws",
+        "wsSettings": { "path": "/fly-tunnel" }
+      }
+    },
+    {
+      "port": 8080,
+      "protocol": "dokodemo-door",
+      "settings": {
+        "address": "127.0.0.1",
+        "port": 80,
+        "network": "tcp"
+      },
+      "tag": "fallback"
+    }
+  ],
+
+  "outbounds": [
+    { "protocol": "freedom" }
+  ]
 }
