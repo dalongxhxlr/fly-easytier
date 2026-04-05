@@ -8,22 +8,19 @@
       "settings": {
         "clients": [
           { "password": "password" }
+        ],
+        "fallbacks": [
+          {
+            "path": "/",
+            "dest": 8080,
+            "xver": 1
+          }
         ]
       },
       "streamSettings": {
         "network": "ws",
         "wsSettings": { "path": "/fly-tunnel" }
       }
-    },
-    {
-      "port": 8080,
-      "protocol": "dokodemo-door",
-      "settings": {
-        "address": "127.0.0.1",
-        "port": 80,
-        "network": "tcp"
-      },
-      "tag": "fallback"
     }
   ],
 
