@@ -7,92 +7,29 @@ on:
 
 jobs:
   deploy:
+    name: Deploy app
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
 
-      # 1. 检查 Fly.io 月度限额
-      - name: Check Fly.io monthly limit
-        id: check_limit
-        run: |
-          FILE="platform_limits.json"
-
-          # 如果文件不存在，创建默认文件
-          if [ ! -f "$FILE" ]; then
-            echo '{"flyio":{"monthly_limit_minutes":900,"usage_minutes":0,"year":2026,"month":3}}' > "$FILE"
-          fi
-
-          YEAR_NOW=$(date +%Y)
-          MONTH_NOW=$(date +%-m)
-
-          LIMIT=$(jq '.flyio.monthly_limit_minutes' "$FILE")
-          USAGE=$(jq '.flyio.usage_minutes' "$FILE")
-          YEAR=$(jq '.flyio.year' "$FILE")
-          MONTH=$(jq '.flyio.month' "$FILE")
-
-          # 跨月自动重置
-          if [ "$YEAR_NOW" -ne "$YEAR" ] || [ "$MONTH_NOW" -ne "$MONTH" ]; then
-            jq ".flyio.usage_minutes = 0 | .flyio.year = $YEAR_NOW | .flyio.month = $MONTH_NOW" "$FILE" > tmp.json
-            mv tmp.json "$FILE"
-            USAGE=0
-          fi
-
-          # 判断是否超额
-          if [ "$USAGE" -ge "$LIMIT" ]; then
-            echo "skip_deploy=true" >> $GITHUB_OUTPUT
-          else
-            echo "skip_deploy=false" >> $GITHUB_OUTPUT
-          fi
-
-      # 2. 超额则跳过部署（并标记为成功）
-      - name: Stop if limit reached
-        if: steps.check_limit.outputs.skip_deploy == 'true'
-        run: |
-          echo "Monthly limit reached, skipping deployment."
-          exit 0
-        continue-on-error: true
-
-      # 3. 安装 flyctl
       - uses: superfly/flyctl-actions/setup-flyctl@master
-        if: steps.check_limit.outputs.skip_deploy == 'false'
 
-      # 4. Fly.io 部署
-      - name: Deploy to Fly.io
-        if: steps.check_limit.outputs.skip_deploy == 'false'
+      - name: Update Secrets (with retry)
         run: |
-          flyctl secrets set \
-            ET_NETWORK_NAME="${{ secrets.ET_NETWORK_NAME }}" \
-            ET_NETWORK_SECRET="${{ secrets.ET_NETWORK_SECRET }}" \
-            ET_PEERS="${{ secrets.ET_PEERS }}" --app fly-easytier-ipv4
-
-          flyctl deploy --remote-only --ha=false
+          for i in 1 2 3; do
+            flyctl secrets set \
+              ET_NETWORK_NAME="${{ secrets.ET_NETWORK_NAME }}" \
+              ET_NETWORK_SECRET="${{ secrets.ET_NETWORK_SECRET }}" \
+              ET_PEERS="${{ secrets.ET_PEERS }}" --app fly-easytier-ipv4 && break
+            echo "Retrying secrets update ($i/3)..."
+            sleep 5
+          done
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
-      # 5. 部署成功后累加用量（45 分钟）
-      - name: Update Fly.io usage
-        if: steps.check_limit.outputs.skip_deploy == 'false'
+      - name: Deploy to Fly.io
         run: |
-          FILE="platform_limits.json"
-          EXTRA=45
-
-          YEAR_NOW=$(date +%Y)
-          MONTH_NOW=$(date +%-m)
-
-          USAGE=$(jq '.flyio.usage_minutes' "$FILE")
-          NEW_USAGE=$((USAGE + EXTRA))
-
-          jq ".flyio.usage_minutes = $NEW_USAGE | .flyio.year = $YEAR_NOW | .flyio.month = $MONTH_NOW" "$FILE" > tmp.json
-          mv tmp.json "$FILE"
-
-      # 6. 提交更新后的 platform_limits.json
-      - name: Commit updated usage
-        if: steps.check_limit.outputs.skip_deploy == 'false'
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add platform_limits.json
-          git commit -m "Update Fly.io usage" || true
-          git push || true
-
+          flyctl deploy --remote-only --ha=false
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
