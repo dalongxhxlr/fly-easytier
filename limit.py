@@ -1,12 +1,13 @@
 import json
 import subprocess
 import datetime
+import time
 
 # Load platform limits
 with open("platform_limits.json", "r") as f:
     limits = json.load(f)
 
-now = datetime.datetime.utcnow()
+now = datetime.datetime.now(datetime.UTC)
 year = now.year
 month = now.month
 
@@ -16,13 +17,32 @@ if limits["flyio"]["year"] != year or limits["flyio"]["month"] != month:
     limits["flyio"]["year"] = year
     limits["flyio"]["month"] = month
 
-# Query Fly.io usage
-cmd = ["flyctl", "apps", "usage", "--json"]
-result = subprocess.run(cmd, capture_output=True, text=True)
-usage = json.loads(result.stdout)
+# Query Fly.io usage with retry
+usage_json = None
+for i in range(3):
+    result = subprocess.run(
+        ["flyctl", "apps", "usage", "--json"],
+        capture_output=True,
+        text=True
+    )
+    stdout = result.stdout.strip()
+
+    if stdout:
+        try:
+            usage_json = json.loads(stdout)
+            break
+        except json.JSONDecodeError:
+            pass
+
+    print(f"Fly.io usage API returned empty or invalid JSON, retrying ({i+1}/3)...")
+    time.sleep(3)
+
+if usage_json is None:
+    print("Failed to fetch Fly.io usage after 3 retries. Exiting safely.")
+    exit(0)
 
 # Extract CPU seconds
-cpu_seconds = usage["current"]["cpu"]["seconds"]
+cpu_seconds = usage_json["current"]["cpu"]["seconds"]
 cpu_minutes = cpu_seconds / 60
 
 limits["flyio"]["usage_minutes"] = cpu_minutes
