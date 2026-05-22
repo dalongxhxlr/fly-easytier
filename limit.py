@@ -16,6 +16,13 @@ if limits["flyio"]["year"] != year or limits["flyio"]["month"] != month:
     limits["flyio"]["usage_minutes"] = 0
     limits["flyio"]["year"] = year
     limits["flyio"]["month"] = month
+    limits["flyio"]["locked"] = False   # 解锁新月份
+    print("New month detected. Resetting usage and unlock state.")
+
+# 如果本月已经锁定（超过 1 美元），直接退出
+if limits["flyio"].get("locked", False):
+    print("This month already exceeded limit. Machine remains stopped.")
+    exit(0)
 
 # Query Fly.io usage with retry
 usage_json = None
@@ -41,19 +48,22 @@ if usage_json is None:
     print("Failed to fetch Fly.io usage after 3 retries. Exiting safely.")
     exit(0)
 
-# Extract CPU seconds
-cpu_seconds = usage_json["current"]["cpu"]["seconds"]
-cpu_minutes = cpu_seconds / 60
+# Extract cost
+current_cost = usage_json["current"]["total_cost"]
 
-limits["flyio"]["usage_minutes"] = cpu_minutes
+print(f"Current cost: ${current_cost:.2f}")
+
+# Save updated usage
+limits["flyio"]["usage_minutes"] = usage_json["current"]["cpu"]["seconds"] / 60
+
+# 超过 1 美元 → 本月永久停机
+if current_cost >= 1.0:
+    print("Monthly cost exceeded $1. Stopping machine for the rest of the month...")
+    limits["flyio"]["locked"] = True
+    subprocess.run(["flyctl", "machines", "stop", "--app", "fly-easytier-ipv4"])
+else:
+    print("Cost OK. No action needed.")
 
 # Save updated limits
 with open("platform_limits.json", "w") as f:
     json.dump(limits, f, indent=2)
-
-# Stop machine if limit exceeded
-if cpu_minutes >= limits["flyio"]["monthly_limit_minutes"]:
-    print("Monthly limit reached. Stopping Fly.io machine...")
-    subprocess.run(["flyctl", "machines", "stop", "--app", "fly-easytier-ipv4"])
-else:
-    print(f"Usage OK: {cpu_minutes:.2f}/{limits['flyio']['monthly_limit_minutes']} minutes")
