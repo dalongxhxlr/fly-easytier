@@ -2,8 +2,7 @@ name: Fly.io Usage Limit
 
 on:
   schedule:
-    - cron: "0 14 * * *"   
-    # 每天 14:00 UTC 执行一次，北京时间 22 点执行，完全避开 Fly.io 的账单刷新期，usage API 会稳定返回 JSON
+    - cron: "0 14 * * *"   # 每天 22:00（北京时间）执行
   workflow_dispatch:
 
 jobs:
