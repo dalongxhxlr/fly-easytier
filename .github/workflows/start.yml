@@ -13,6 +13,6 @@ jobs:
         uses: superfly/flyctl-actions/setup-flyctl@master
 
       - name: Start machine
-        run: flyctl machines start --app fly-easytier-ipv4
+        run: flyctl machines start 1781e7e4a27328 --app fly-easytier-ipv4
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
