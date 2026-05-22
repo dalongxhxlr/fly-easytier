@@ -2,7 +2,7 @@ name: Stop Machine (Saturday)
 
 on:
   schedule:
-    - cron: "30 3 * * 6"   # 周六 11:30 停机（运行 2.5 小时）
+    - cron: "30 3 * * 6"   # 周六 11:30（北京时间）
   workflow_dispatch:
 
 jobs:
@@ -13,6 +13,6 @@ jobs:
         uses: superfly/flyctl-actions/setup-flyctl@master
 
       - name: Stop machine
-        run: flyctl machines stop --app fly-easytier-ipv4
+        run: flyctl machines stop 1781e7e4a27328 --app fly-easytier-ipv4
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
