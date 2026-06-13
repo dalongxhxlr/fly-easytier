@@ -1,8 +1,8 @@
-name: Start Machine (Saturday)
+name: Start Machine (Daily)
 
 on:
   schedule:
-    - cron: "0 1 * * 6"   # 周六 09:00（北京时间）
+    - cron: "0 1 * * *"   # 每天 UTC 01:00，即北京时间 09:00
   workflow_dispatch:
 
 jobs:
