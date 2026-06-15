@@ -1,16 +1,17 @@
 name: Start Machine (Daily)
 
 on:
-  schedule:
-    - cron: "0 1 * * *"   # 每天 UTC 01:00，即北京时间 09:00
-  workflow_dispatch:
+  workflow_dispatch:  # 仅保留 API 触发，移除 cron
 
 jobs:
   start:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
       - name: Setup Flyctl
-        uses: superfly/flyctl-actions/setup-flyctl@master
+        uses: superfly/flyctl-actions/setup-flyctl@1.5  # 升级版本，修复 Node.js 警告
 
       - name: Start machine
         run: flyctl machines start 1781e7e4a27328 --app fly-easytier-ipv4
