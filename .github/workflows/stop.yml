@@ -1,16 +1,17 @@
 name: Stop Machine (Daily)
 
 on:
-  schedule:
-    - cron: "0 11 * * *"   # 每天 UTC 11:00，即北京时间 19:00
-  workflow_dispatch:
+  workflow_dispatch:  # 仅保留 API 触发，移除 cron
 
 jobs:
   stop:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
       - name: Setup Flyctl
-        uses: superfly/flyctl-actions/setup-flyctl@master
+        uses: superfly/flyctl-actions/setup-flyctl@1.5  # 升级版本，修复 Node.js 警告
 
       - name: Stop machine
         run: flyctl machines stop 1781e7e4a27328 --app fly-easytier-ipv4
