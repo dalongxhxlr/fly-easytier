@@ -11,9 +11,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - name: Setup Flyctl
+        uses: superfly/flyctl-actions/setup-flyctl@1.5  # 升级版本，修复 Node.js 警告
 
       - name: Update Secrets (with retry)
         run: |
